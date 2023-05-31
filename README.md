@@ -14,7 +14,7 @@ This project is a small utility written in Python for fetching and processing qu
 
 ## Installation
 1. Clone this repository
-git clone https://github.com/your_username/your_project_name.git
+git clone https://github.com/j19920816/Exchange-Quote-D2TQ.git
 
 2. Navigate into the project directory
 cd your_project_name
