@@ -1,32 +1,25 @@
 # -*- coding: utf-8 -*-
 from  datetime import datetime
-import enum
 from loguru import logger
 from ExWebsocket.ex_websocket import ExWebsocketBase
+from threading import Timer
 import json
 
-class StreamType(enum):
-    Trade = 0
-    Quote = 1
-    Other = 2
+class MaxExWebsocket(ExWebsocketBase):
+    def __init__(self, endpoint: str, symbols: list):
+        super().__init__(endpoint, symbols, self.__message_handler) 
+        self._exchange = "MAX"
+        self.timers:Timer = None
+        methods:list = []
 
-class BitoExWebsocket(ExWebsocketBase):
-    def __init__(self, stream_type: StreamType, endpoint: str, symbols: list):
-        if stream_type == StreamType.Trade.value:
-            trade_endpoint = endpoint
-            for symbol in symbols:
-                trade_endpoint += f"{symbol.lower()},"
-            super().__init__(trade_endpoint, symbols, self.trade_to_D2tq_tick)
-        else:
-            quote_endpoint = endpoint
-            for symbol in symbols:
-                quote_endpoint += f"{symbol.lower()}:1,"
-            super().__init__(quote_endpoint, symbols, self.quote_to_D2tq_tick)
+        for symbol in symbols:
+            methods.append({"channel": "book","market": symbol.lower().replace("_",""),"depth": 1})
+            methods.append({"channel": "trade","market": symbol.lower().replace("_","")})
             
-        self._exchange = "Bitopro"    
+        self._send_opening_message = json.dumps({"action": "sub","subscriptions": methods,"id": "client1"})
         self._set_websocket()
 
-    def trade_to_D2tq_tick(self, message:str)->None:
+    def __message_handler(self, message:str)->None:
         json_message = json.loads(message)
 
         if self._tcp_factory.protocol != None:

@@ -1,27 +1,22 @@
 # -*- coding: utf-8 -*-
-from enum import Enum
 import threading
 import threading
+import time
 import websocket
-import encodings.idna
 from loguru import logger
 from d2tq_stream import D2TQPacket
 from tcp_server import TcpServerFactory
 
-class StreamType(Enum):
-    Trade = 0
-    Quote = 1
-    Other = 2
-
 class ExWebsocketBase():
-    def __init__(self, endpoint: str, callback):
+    def __init__(self, endpoint: str, symbols: list, callback):
+        self.__connect_endpoint: str = endpoint
+        self._symbols:list = symbols
         self._exchange:str=""
         self._send_opening_message:str=""
-        self.__connect_endpoint: str = endpoint
-        self.callback = callback
         self._d2tq_packet: D2TQPacket = D2TQPacket()
-
         self._ws: websocket.WebSocketApp = None
+
+        self.callback = callback
         self.wst: threading.Thread = None
         
     def set_socket(self, tcp_factory: TcpServerFactory):
@@ -45,6 +40,7 @@ class ExWebsocketBase():
     def __on_close(self, ws, close_status_code, msg):
         log_message = f"{self.__connect_endpoint} closed connection, reconnecting...\n"
         logger.info(f"{log_message}")
+        time.sleep(3)
         self._set_websocket()
         self.wst.start()
 

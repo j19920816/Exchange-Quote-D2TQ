@@ -6,16 +6,16 @@ from loguru import logger
 from ExWebsocket.ex_websocket import ExWebsocketBase
 
 class BinanceSpotWebsocket(ExWebsocketBase):
-    def __init__(self, endpoint: str):
-        super().__init__(endpoint, self.__message_handler)
+    def __init__(self, endpoint: str, symbols:list):
+        super().__init__(endpoint, symbols, self.__message_handler)
         self._exchange = "Binance"
-        symbols = ["BTCUSDT", "ETHUSDT"]
+        
         methods:list[str] = []
         self.__order_book:dict = {}
 
         for symbol in symbols:
-            methods.append(symbol.lower() + "@trade")
-            methods.append(symbol.lower() + "@bookTicker")
+            methods.append(symbol.lower().replace("_","") + "@trade")
+            methods.append(symbol.lower().replace("_","") + "@bookTicker")
             self.__order_book[symbol] = {"lastUpdateId": 0, "bids": [], "asks": []}
             
         self._send_opening_message = json.dumps({"method": "SUBSCRIBE","params": methods,"id": 1})

@@ -6,20 +6,17 @@ from threading import Timer
 from ExWebsocket.ex_websocket import ExWebsocketBase
 
 class BybitSpotWebsocket(ExWebsocketBase):
-    base_url = "https://api.binance.com"
-
-    def __init__(self, endpoint: str):
-        super().__init__(endpoint, self.__message_handler) 
+    def __init__(self, endpoint: str, symbols: list):
+        super().__init__(endpoint, symbols, self.__message_handler) 
         self._exchange = "Bybit"
         self.timers:Timer = None
         self.__set_timer()
-
-        symbols = ["BTCUSDT", "ETHUSDT"]
         methods:list[str] = []
 
         for symbol in symbols:
-            methods.append(f"orderbook.40.{symbol.upper()}")
-            methods.append(f"trade.{symbol.upper()}")
+            sub_symbol = symbol.upper().replace("_","")
+            methods.append(f"orderbook.40.{sub_symbol}")
+            methods.append(f"trade.{sub_symbol}")
             
         self._send_opening_message = json.dumps({"op": "subscribe","args": methods,"req_id": "depth00001"})
         self._set_websocket()
