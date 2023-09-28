@@ -8,9 +8,8 @@ from d2tq_stream import D2TQPacket
 from tcp_server import TcpServerFactory
 
 class ExWebsocketBase():
-    def __init__(self, endpoint: str, symbols: list, callback):
+    def __init__(self, endpoint: str, callback):
         self.__connect_endpoint: str = endpoint
-        self._symbols:list = symbols
         self._exchange:str=""
         self._send_opening_message:str=""
         self._d2tq_packet: D2TQPacket = D2TQPacket()

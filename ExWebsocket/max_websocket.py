@@ -7,7 +7,7 @@ import json
 
 class MaxExWebsocket(ExWebsocketBase):
     def __init__(self, endpoint: str, symbols: list):
-        super().__init__(endpoint, symbols, self.__message_handler) 
+        super().__init__(endpoint, self.__message_handler) 
         self._exchange = "MAX"
         self.timers:Timer = None
         methods:list = []

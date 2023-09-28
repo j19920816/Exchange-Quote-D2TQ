@@ -14,7 +14,8 @@ os.environ["REQUESTS_CA_BUNDLE"] = os.path.join(os.path.dirname(sys.argv[0]), "c
 
 if __name__ == "__main__":
     config = Config("config.ini")
-
+    config.load_config()
+    
     #host = "0.0.0.0"
     port = 2000
     # tcp_factory:TcpClientFactory = TcpClientFactory()
@@ -23,10 +24,10 @@ if __name__ == "__main__":
     server_factory = TcpServerFactory()
     manager = ExchangeWebSocketManager(server_factory)
     manager.add_ex_webscoket(BitoExWebsocket(StreamType.Trade, "wss://stream.bitopro.com:9443/ws/v1/pub/trades/", config.subscribe_symbols))
-    manager.add_ex_webscoket(BitoExWebsocket(StreamType.Quote, "wss://stream.bitopro.com:9443/ws/v1/pub/order-books?pairs=", config.subscribe_symbols))
-    manager.add_ex_webscoket(BinanceSpotWebsocket("wss://stream.binance.com:9443/ws", config.subscribe_symbols))
-    manager.add_ex_webscoket(BybitSpotWebsocket("wss://stream.bybit.com/spot/public/v3", config.subscribe_symbols))
-    manager.add_ex_webscoket(MaxExWebsocket("wss://max-stream.maicoin.com/ws", config.subscribe_symbols))
+    # manager.add_ex_webscoket(BitoExWebsocket(StreamType.Quote, "wss://stream.bitopro.com:9443/ws/v1/pub/order-books?pairs=", config.subscribe_symbols))
+    # manager.add_ex_webscoket(BinanceSpotWebsocket("wss://stream.binance.com:9443/ws", config.subscribe_symbols))
+    # manager.add_ex_webscoket(BybitSpotWebsocket("wss://stream.bybit.com/spot/public/v3", config.subscribe_symbols))
+    # manager.add_ex_webscoket(MaxExWebsocket("wss://max-stream.maicoin.com/ws", config.subscribe_symbols))
     manager.start()
     reactor.listenTCP(port, server_factory)
     reactor.run()

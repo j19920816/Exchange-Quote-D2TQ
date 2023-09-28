@@ -16,12 +16,12 @@ class BitoExWebsocket(ExWebsocketBase):
             trade_endpoint = endpoint
             for symbol in symbols:
                 trade_endpoint += f"{symbol.lower()},"
-            super().__init__(trade_endpoint, symbols, self.trade_to_D2tq_tick)
+            super().__init__(trade_endpoint, self.trade_to_D2tq_tick)
         else:
             quote_endpoint = endpoint
             for symbol in symbols:
                 quote_endpoint += f"{symbol.lower()}:1,"
-            super().__init__(quote_endpoint, symbols, self.quote_to_D2tq_tick)
+            super().__init__(quote_endpoint, self.quote_to_D2tq_tick)
             
         self._exchange = "Bitopro"    
         self._set_websocket()
