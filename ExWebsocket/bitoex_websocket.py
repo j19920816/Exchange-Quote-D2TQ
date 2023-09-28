@@ -1,18 +1,18 @@
 # -*- coding: utf-8 -*-
 from  datetime import datetime
-import enum
+from enum import Enum
 from loguru import logger
 from ExWebsocket.ex_websocket import ExWebsocketBase
 import json
 
-class StreamType(enum):
+class StreamType(Enum):
     Trade = 0
     Quote = 1
     Other = 2
 
 class BitoExWebsocket(ExWebsocketBase):
     def __init__(self, stream_type: StreamType, endpoint: str, symbols: list):
-        if stream_type == StreamType.Trade.value:
+        if stream_type == StreamType.Trade:
             trade_endpoint = endpoint
             for symbol in symbols:
                 trade_endpoint += f"{symbol.lower()},"

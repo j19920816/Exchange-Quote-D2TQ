@@ -9,7 +9,7 @@ from tcp_server import TcpServerFactory
 
 class ExWebsocketBase():
     def __init__(self, endpoint: str, callback):
-        self.__connect_endpoint: str = endpoint
+        self._connect_endpoint = endpoint
         self._exchange:str=""
         self._send_opening_message:str=""
         self._d2tq_packet: D2TQPacket = D2TQPacket()
@@ -23,11 +23,11 @@ class ExWebsocketBase():
         
     def _set_websocket(self):
         self._ws = websocket.WebSocketApp(
-            self.__connect_endpoint,
-            on_open=self.__on_open,
-            on_close=self.__on_close,
-            on_message=self.__on_message,
-            on_error=self.__on_error,
+            self._connect_endpoint,
+            on_open=lambda ws: self.__on_open(ws),
+            on_close=lambda ws, status_code, msg: self.__on_close(ws, status_code, msg),
+            on_message=lambda ws, msg:self.__on_message(ws, msg),
+            on_error=lambda ws, error:self.__on_error(ws, error)
         )
         self.wst = threading.Thread(target=self._ws.run_forever)
 
@@ -37,7 +37,7 @@ class ExWebsocketBase():
         logger.info(f"{self._exchange} connected")
 
     def __on_close(self, ws, close_status_code, msg):
-        log_message = f"{self.__connect_endpoint} closed connection, reconnecting...\n"
+        log_message = f"{self._connect_endpoint} closed connection, reconnecting...\n"
         logger.info(f"{log_message}")
         time.sleep(3)
         self._set_websocket()

@@ -14,8 +14,11 @@ class BinanceSpotWebsocket(ExWebsocketBase):
         self.__order_book:dict = {}
 
         for symbol in symbols:
-            methods.append(symbol.lower().replace("_","") + "@trade")
-            methods.append(symbol.lower().replace("_","") + "@bookTicker")
+            if symbol.split("_")[1] == "twd":
+                continue
+            sub_symbol = symbol.lower().replace("_","")
+            methods.append(sub_symbol + "@trade")
+            methods.append(sub_symbol + "@bookTicker")
             self.__order_book[symbol] = {"lastUpdateId": 0, "bids": [], "asks": []}
             
         self._send_opening_message = json.dumps({"method": "SUBSCRIBE","params": methods,"id": 1})

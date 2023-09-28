@@ -14,6 +14,8 @@ class BybitSpotWebsocket(ExWebsocketBase):
         methods:list[str] = []
 
         for symbol in symbols:
+            if symbol.split("_")[1] == "twd":
+                continue
             sub_symbol = symbol.upper().replace("_","")
             methods.append(f"orderbook.40.{sub_symbol}")
             methods.append(f"trade.{sub_symbol}")
