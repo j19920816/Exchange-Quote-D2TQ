@@ -14,8 +14,6 @@ class BinanceSpotWebsocket(ExWebsocketBase):
         self.__order_book:dict = {}
 
         for symbol in symbols:
-            if symbol.split("_")[1] == "twd":
-                continue
             sub_symbol = symbol.lower().replace("_","")
             methods.append(sub_symbol + "@trade")
             methods.append(sub_symbol + "@bookTicker")

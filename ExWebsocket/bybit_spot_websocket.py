@@ -3,6 +3,7 @@ from  datetime import datetime
 import json
 from loguru import logger
 from threading import Timer
+import requests
 from ExWebsocket.ex_websocket import ExWebsocketBase
 
 class BybitSpotWebsocket(ExWebsocketBase):
@@ -13,12 +14,18 @@ class BybitSpotWebsocket(ExWebsocketBase):
         self.__set_timer()
         methods:list[str] = []
 
+        response = requests.get("https://api.bybit.com/v5/market/instruments-info", params={"category":"spot"})
+        if response.status_code != requests.codes.ok:
+            logger.error(f"Cannot get {self._exchange} pair info")
+            return
+        
+        bybit_symbols = json.loads(response.text)["result"]["list"]
         for symbol in symbols:
-            if symbol.split("_")[1] == "twd":
-                continue
             sub_symbol = symbol.upper().replace("_","")
-            methods.append(f"orderbook.40.{sub_symbol}")
-            methods.append(f"trade.{sub_symbol}")
+            sub_symbol = [obj for obj in bybit_symbols if obj["symbol"] == sub_symbol]
+            if len(sub_symbol) > 0:
+                methods.append(f"orderbook.40.{sub_symbol}")
+                methods.append(f"trade.{sub_symbol}")
             
         self._send_opening_message = json.dumps({"op": "subscribe","args": methods,"req_id": "depth00001"})
         self._set_websocket()

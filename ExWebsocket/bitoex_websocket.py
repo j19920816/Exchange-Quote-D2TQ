@@ -2,6 +2,7 @@
 from  datetime import datetime
 from enum import Enum
 from loguru import logger
+import requests
 from ExWebsocket.ex_websocket import ExWebsocketBase
 import json
 
@@ -12,18 +13,28 @@ class StreamType(Enum):
 
 class BitoExWebsocket(ExWebsocketBase):
     def __init__(self, stream_type: StreamType, endpoint: str, symbols: list):
+        self._exchange = "Bitopro" 
+         
+        response = requests.get("https://api.bitopro.com/v3/provisioning/trading-pairs")
+        if response.status_code != requests.codes.ok:
+            logger.error(f"Cannot get {self._exchange} pair info")
+            return
+        bito_symbols = json.loads(response.text)["data"]
+
         if stream_type == StreamType.Trade:
             trade_endpoint = endpoint
-            for symbol in symbols:
-                trade_endpoint += f"{symbol.lower()},"
+            for sub_symbol in symbols:
+                if len([obj for obj in bito_symbols if obj["pair"] == sub_symbol.lower()]) > 0:
+                    trade_endpoint += f"{sub_symbol.lower()},"
             super().__init__(trade_endpoint, self.trade_to_D2tq_tick)
         else:
             quote_endpoint = endpoint
-            for symbol in symbols:
-                quote_endpoint += f"{symbol.lower()}:1,"
+            for sub_symbol in symbols:
+                if len([obj for obj in bito_symbols if obj["pair"] == sub_symbol.lower()]) > 0:
+                    quote_endpoint += f"{sub_symbol.lower()}:1,"
             super().__init__(quote_endpoint, self.quote_to_D2tq_tick)
-            
-        self._exchange = "Bitopro"    
+
+        
         self._set_websocket()
 
     def trade_to_D2tq_tick(self, message:str)->None:
