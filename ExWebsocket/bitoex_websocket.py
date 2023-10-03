@@ -13,11 +13,9 @@ class StreamType(Enum):
 
 class BitoExWebsocket(ExWebsocketBase):
     def __init__(self, stream_type: StreamType, endpoint: str, symbols: list):
-        self._exchange = "Bitopro" 
-         
         response = requests.get("https://api.bitopro.com/v3/provisioning/trading-pairs")
         if response.status_code != requests.codes.ok:
-            logger.error(f"Cannot get {self._exchange} pair info")
+            logger.error(f"Cannot get Bitopro pair info")
             return
         bito_symbols = json.loads(response.text)["data"]
 
@@ -34,7 +32,7 @@ class BitoExWebsocket(ExWebsocketBase):
                     quote_endpoint += f"{sub_symbol.lower()}:1,"
             super().__init__(quote_endpoint, self.quote_to_D2tq_tick)
 
-        
+        self._exchange = "Bitopro" 
         self._set_websocket()
 
     def trade_to_D2tq_tick(self, message:str)->None:
